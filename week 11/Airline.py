@@ -46,7 +46,7 @@ train_scaled = scaler.fit_transform(train[['Passengers']])
 test_scaled = scaler.transform(test[['Passengers']])
 
 # Reshape for LSTM
-X_train_lstm, y_train_lstm = train_scaled[:-1], train_scaled[1:]
+X_train_lstm, y_train_lstm = train_scaled[:-1], train_scaled[1:len(train_scaled)]
 X_test_lstm, y_test_lstm = test_scaled[:-1], test_scaled[1:]
 
 X_train_lstm = X_train_lstm.reshape((X_train_lstm.shape[0], 1, 1))
@@ -96,11 +96,13 @@ def evaluate_model(y_true, y_pred, model_name):
     print(f"RMSE: {np.sqrt(mean_squared_error(y_true, y_pred)):.2f}")
     print(f"R2 Score: {r2_score(y_true, y_pred):.2f}")
     print("-" * 40)
+    print(X_train_lstm.shape, y_train_lstm.shape)  # Must match in first dimension
+print(X_test_lstm.shape, y_test_lstm.shape) 
 
 # Evaluate All Models
 evaluate_model(y_test, y_pred_lr, "Linear Regression")
 evaluate_model(y_test, y_pred_xgb, "XGBoost")
-# evaluate_model(y_test, y_pred_lstm.flatten(), "LSTM") # activity : Check the code for LSTM
+evaluate_model(y_test, y_pred_lstm.flatten(), "LSTM") # activity : Check the code for LSTM
 evaluate_model(y_test, y_pred_ann.flatten(), "ANN")
 evaluate_model(y_test, y_pred_arima, "ARIMA")
 
@@ -109,7 +111,7 @@ plt.figure(figsize=(12,6))
 plt.plot(y_test.index, y_test, label="Actual")
 plt.plot(y_test.index, y_pred_lr, label="Linear Regression", linestyle="dashed")
 plt.plot(y_test.index, y_pred_xgb, label="XGBoost", linestyle="dashed")
-# plt.plot(y_test.index, y_pred_lstm.flatten(), label="LSTM", linestyle="dashed")
+plt.plot(y_test.index, y_pred_lstm.flatten(), label="LSTM", linestyle="dashed")
 plt.plot(y_test.index, y_pred_ann.flatten(), label="ANN", linestyle="dashed")
 plt.plot(y_test.index, y_pred_arima, label="ARIMA", linestyle="dashed")
 plt.legend()
